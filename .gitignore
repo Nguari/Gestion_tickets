@@ -1,0 +1,33 @@
+# Environnement virtuel
+.venv/
+venv/
+env/
+
+# Variables d'environnement / secrets
+.env
+
+# Fichiers Python compilés
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# PyCharm
+.idea/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Tests
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs
+*.log
+
+# Fichiers système
+.DS_Store
+Thumbs.db
