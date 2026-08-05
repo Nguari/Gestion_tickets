@@ -13,88 +13,15 @@ from menu.auth import Auth
 
 
 class Interface:
-    """Interface utilisateur du système de gestion de tickets"""
+    """Regroupe toutes les actions métier du système de gestion de tickets.
+    L'authentification et l'aiguillage par rôle sont gérés dans main.py."""
 
     def __init__(self):
         self.db = Connexion()
         self.db.connecter()
         self.auth = Auth(self.db)
 
-    def afficher_menu_principal(self):
-        """Affiche le menu principal"""
-        while True:
-            print("\n" + "=" * 60)
-            print(" " * 15 + "SYSTÈME DE GESTION DE TICKETS")
-            print("=" * 60)
-
-            if self.auth.est_connecte():
-                u = self.auth.get_utilisateur_connecte()
-                print(f"👤 Connecté : {u.prenom} {u.nom} ({u.role})")
-            else:
-                print("🔒 Non connecté")
-
-            print("-" * 60)
-            print("1. Gestion des utilisateurs")
-            print("2. Gestion des incidents")
-            print("3. Gestion des interventions")
-            print("4. Voir mes tickets")
-            print("5. Statistiques")
-            print("6. Authentification")
-            if self.auth.est_connecte():
-                print("7. Mon compte")
-                print("8. Quitter")
-            else:
-                print("7. Quitter")
-            print("-" * 60)
-
-            choix = input("Votre choix: ")
-
-            if choix == "1":
-                self.menu_utilisateurs()
-            elif choix == "2":
-                self.menu_incidents()
-            elif choix == "3":
-                self.menu_interventions()
-            elif choix == "4":
-                self.voir_mes_tickets()
-            elif choix == "5":
-                self.afficher_statistiques()
-            elif choix == "6":
-                self.menu_authentification()
-            elif choix == "7":
-                if self.auth.est_connecte():
-                    self.menu_mon_compte()
-                else:
-                    print("\nAu revoir!")
-                    self.db.fermer()
-                    break
-            elif choix == "8" and self.auth.est_connecte():
-                print("\nAu revoir!")
-                self.db.fermer()
-                break
-            else:
-                print("\n❌ Choix invalide. Veuillez réessayer.")
-
-    def menu_authentification(self):
-        if self.auth.est_connecte():
-            print("\n❌ Vous êtes déjà connecté.")
-            return
-
-        print("\n" + "-" * 50)
-        print("AUTHENTIFICATION")
-        print("-" * 50)
-        print("1. Se connecter")
-        print("2. Retour")
-        print("-" * 50)
-
-        choix = input("Votre choix: ")
-
-        if choix == "1":
-            self.auth.login()
-        elif choix == "2":
-            return
-        else:
-            print("\n❌ Choix invalide.")
+    # ============ MON COMPTE ============
 
     def menu_mon_compte(self):
         while True:
@@ -119,19 +46,11 @@ class Interface:
             elif choix == "4":
                 break
             else:
-                print("\n❌ Choix invalide.")
+                print("\n Choix invalide.")
 
     # ============ GESTION DES UTILISATEURS ============
 
     def menu_utilisateurs(self):
-        if not self.auth.est_connecte():
-            print("\n❌ Vous devez être connecté pour accéder à cette fonctionnalité.")
-            return
-
-        if not self.auth.est_admin():
-            print("\n❌ Vous devez être administrateur pour gérer les utilisateurs.")
-            return
-
         while True:
             print("\n" + "-" * 50)
             print("GESTION DES UTILISATEURS")
@@ -159,7 +78,7 @@ class Interface:
             elif choix == "6":
                 break
             else:
-                print("\n❌ Choix invalide.")
+                print("\n Choix invalide.")
 
     def ajouter_utilisateur(self):
         print("\n" + "-" * 50)
@@ -189,11 +108,11 @@ class Interface:
             )
 
             utilisateur.sauvegarder(self.db)
-            print(f"\n✅ Utilisateur ajouté avec succès! (ID: {utilisateur.id})")
+            print(f"\n Utilisateur ajouté avec succès! (ID: {utilisateur.id})")
         except ValueError as e:
-            print(f"\n❌ Erreur de validation: {e}")
+            print(f"\n Erreur de validation: {e}")
         except Exception as e:
-            print(f"\n❌ Erreur lors de l'ajout: {e}")
+            print(f"\n Erreur lors de l'ajout: {e}")
 
     def lister_utilisateurs(self):
         print("\n" + "-" * 50)
@@ -210,7 +129,7 @@ class Interface:
             else:
                 print("\nAucun utilisateur trouvé.")
         except Exception as e:
-            print(f"\n❌ Erreur lors du listage: {e}")
+            print(f"\n Erreur lors du listage: {e}")
 
     def rechercher_utilisateur(self):
         print("\n" + "-" * 50)
@@ -230,7 +149,7 @@ class Interface:
                 if utilisateur:
                     self._afficher_utilisateur(utilisateur)
                 else:
-                    print("\n❌ Utilisateur non trouvé.")
+                    print("\n Utilisateur non trouvé.")
 
             elif choix == "2":
                 login = input("Login: ")
@@ -238,25 +157,25 @@ class Interface:
                 if utilisateur:
                     self._afficher_utilisateur(utilisateur)
                 else:
-                    print("\n❌ Utilisateur non trouvé.")
+                    print("\n Utilisateur non trouvé.")
 
             elif choix == "3":
                 role = input("Rôle (UTILISATEUR/TECHNICIEN/ADMIN): ").upper()
                 utilisateurs = Utilisateur.trouver_par_role(self.db, role)
                 if utilisateurs:
-                    print(f"\n✅ {len(utilisateurs)} utilisateur(s) trouvé(s):")
+                    print(f"\n {len(utilisateurs)} utilisateur(s) trouvé(s):")
                     for u in utilisateurs:
                         print(f"   - {u.prenom} {u.nom} ({u.login})")
                 else:
-                    print(f"\n❌ Aucun utilisateur avec le rôle {role}.")
+                    print(f"\n Aucun utilisateur avec le rôle {role}.")
 
             else:
-                print("\n❌ Choix invalide.")
+                print("\n Choix invalide.")
         except Exception as e:
-            print(f"\n❌ Erreur lors de la recherche: {e}")
+            print(f"\n Erreur lors de la recherche: {e}")
 
     def _afficher_utilisateur(self, utilisateur):
-        print("\n" + "📋 DÉTAILS DE L'UTILISATEUR")
+        print("\n" + " DÉTAILS DE L'UTILISATEUR")
         print("-" * 40)
         print(f"ID: {utilisateur.id}")
         print(f"Login: {utilisateur.login}")
@@ -276,7 +195,7 @@ class Interface:
             id_util = input("ID de l'utilisateur à modifier: ")
             utilisateur = Utilisateur.trouver_par_id(self.db, id_util)
             if not utilisateur:
-                print("\n❌ Utilisateur non trouvé.")
+                print("\n Utilisateur non trouvé.")
                 return
 
             print(f"\nModification de: {utilisateur.prenom} {utilisateur.nom}")
@@ -302,11 +221,11 @@ class Interface:
                 utilisateur.password = nouveau_mdp
 
             utilisateur.sauvegarder(self.db)
-            print("\n✅ Utilisateur modifié avec succès!")
+            print("\n Utilisateur modifié avec succès!")
         except ValueError as e:
-            print(f"\n❌ Erreur de validation: {e}")
+            print(f"\n Erreur de validation: {e}")
         except Exception as e:
-            print(f"\n❌ Erreur lors de la modification: {e}")
+            print(f"\n Erreur lors de la modification: {e}")
 
     def supprimer_utilisateur(self):
         print("\n" + "-" * 50)
@@ -317,31 +236,27 @@ class Interface:
             id_util = input("ID de l'utilisateur à supprimer: ")
             utilisateur = Utilisateur.trouver_par_id(self.db, id_util)
             if not utilisateur:
-                print("\n❌ Utilisateur non trouvé.")
+                print("\n Utilisateur non trouvé.")
                 return
 
             if utilisateur.id == self.auth.get_utilisateur_connecte().id:
-                print("\n❌ Vous ne pouvez pas supprimer votre propre compte.")
+                print("\n Vous ne pouvez pas supprimer votre propre compte.")
                 return
 
-            print(f"\n⚠️  Vous allez supprimer: {utilisateur.prenom} {utilisateur.nom}")
+            print(f"\n  Vous allez supprimer: {utilisateur.prenom} {utilisateur.nom}")
             confirmation = input("Confirmer la suppression? (o/n): ")
 
             if confirmation.lower() == 'o':
                 utilisateur.supprimer(self.db)
-                print("\n✅ Utilisateur supprimé avec succès!")
+                print("\n Utilisateur supprimé avec succès!")
             else:
                 print("\nSuppression annulée.")
         except Exception as e:
-            print(f"\n❌ Erreur lors de la suppression: {e}")
+            print(f"\n Erreur lors de la suppression: {e}")
 
     # ============ GESTION DES INCIDENTS ============
 
     def menu_incidents(self):
-        if not self.auth.est_connecte():
-            print("\n❌ Vous devez être connecté pour accéder à cette fonctionnalité.")
-            return
-
         while True:
             print("\n" + "-" * 50)
             print("GESTION DES INCIDENTS")
@@ -372,13 +287,9 @@ class Interface:
             elif choix == "7":
                 break
             else:
-                print("\n❌ Choix invalide.")
+                print("\n Choix invalide.")
 
     def creer_incident(self):
-        if not self.auth.est_connecte():
-            print("\n❌ Vous devez être connecté pour créer un incident.")
-            return
-
         print("\n" + "-" * 50)
         print("CRÉATION D'UN INCIDENT")
         print("-" * 50)
@@ -396,11 +307,11 @@ class Interface:
             )
 
             incident.sauvegarder(self.db)
-            print(f"\n✅ Incident créé avec succès! (ID: {incident.id})")
+            print(f"\n Incident créé avec succès! (ID: {incident.id})")
         except ValueError as e:
-            print(f"\n❌ Erreur de validation: {e}")
+            print(f"\n Erreur de validation: {e}")
         except Exception as e:
-            print(f"\n❌ Erreur lors de la création: {e}")
+            print(f"\n Erreur lors de la création: {e}")
 
     def lister_incidents(self):
         print("\n" + "-" * 50)
@@ -417,7 +328,7 @@ class Interface:
             else:
                 print("\nAucun incident trouvé.")
         except Exception as e:
-            print(f"\n❌ Erreur lors du listage: {e}")
+            print(f"\n Erreur lors du listage: {e}")
 
     def rechercher_incident(self):
         print("\n" + "-" * 50)
@@ -438,45 +349,45 @@ class Interface:
                 if incident:
                     self._afficher_incident(incident)
                 else:
-                    print("\n❌ Incident non trouvé.")
+                    print("\n Incident non trouvé.")
 
             elif choix == "2":
                 statut = input("Statut (OUVERT/EN_COURS/RESOLU/FERME): ").upper()
                 incidents = Incident.trouver_par_statut(self.db, statut)
                 if incidents:
-                    print(f"\n✅ {len(incidents)} incident(s) trouvé(s):")
+                    print(f"\n {len(incidents)} incident(s) trouvé(s):")
                     for inc in incidents:
                         print(f"   - #{inc.id}: {inc.titre} ({inc.priorite})")
                 else:
-                    print(f"\n❌ Aucun incident avec le statut {statut}.")
+                    print(f"\n Aucun incident avec le statut {statut}.")
 
             elif choix == "3":
                 priorite = input("Priorité (BASSE/MOYENNE/HAUTE/CRITIQUE): ").upper()
                 incidents = Incident.trouver_par_priorite(self.db, priorite)
                 if incidents:
-                    print(f"\n✅ {len(incidents)} incident(s) trouvé(s):")
+                    print(f"\n {len(incidents)} incident(s) trouvé(s):")
                     for inc in incidents:
                         print(f"   - #{inc.id}: {inc.titre} ({inc.statut})")
                 else:
-                    print(f"\n❌ Aucun incident avec la priorité {priorite}.")
+                    print(f"\n Aucun incident avec la priorité {priorite}.")
 
             elif choix == "4":
                 id_util = input("ID de l'utilisateur: ")
                 incidents = Incident.trouver_par_utilisateur(self.db, id_util)
                 if incidents:
-                    print(f"\n✅ {len(incidents)} incident(s) trouvé(s):")
+                    print(f"\n {len(incidents)} incident(s) trouvé(s):")
                     for inc in incidents:
                         print(f"   - #{inc.id}: {inc.titre} ({inc.statut})")
                 else:
-                    print(f"\n❌ Aucun incident pour cet utilisateur.")
+                    print(f"\n Aucun incident pour cet utilisateur.")
 
             else:
-                print("\n❌ Choix invalide.")
+                print("\n Choix invalide.")
         except Exception as e:
-            print(f"\n❌ Erreur lors de la recherche: {e}")
+            print(f"\n Erreur lors de la recherche: {e}")
 
     def _afficher_incident(self, incident):
-        print("\n" + "📋 DÉTAILS DE L'INCIDENT")
+        print("\n" + " DÉTAILS DE L'INCIDENT")
         print("-" * 40)
         print(f"ID: {incident.id}")
         print(f"Titre: {incident.titre}")
@@ -491,11 +402,11 @@ class Interface:
 
         interventions = incident.get_interventions(self.db)
         if interventions:
-            print(f"\n📝 Interventions associées ({len(interventions)}):")
+            print(f"\n Interventions associées ({len(interventions)}):")
             for inter in interventions:
                 print(f"   - #{inter.id}: {inter.commentaire[:40]}... ({inter.duree_minutes} min)")
         else:
-            print("\n📝 Aucune intervention associée.")
+            print("\n Aucune intervention associée.")
 
     def modifier_incident(self):
         print("\n" + "-" * 50)
@@ -506,11 +417,11 @@ class Interface:
             id_inc = input("ID de l'incident à modifier: ")
             incident = Incident.trouver_par_id(self.db, id_inc)
             if not incident:
-                print("\n❌ Incident non trouvé.")
+                print("\n Incident non trouvé.")
                 return
 
             if not self.auth.est_admin() and incident.utilisateur_id != self.auth.get_utilisateur_connecte().id:
-                print("\n❌ Vous ne pouvez modifier que vos propres incidents.")
+                print("\n Vous ne pouvez modifier que vos propres incidents.")
                 return
 
             print(f"\nModification de: {incident.titre}")
@@ -527,11 +438,11 @@ class Interface:
             incident.statut = statut
 
             incident.sauvegarder(self.db)
-            print("\n✅ Incident modifié avec succès!")
+            print("\n Incident modifié avec succès!")
         except ValueError as e:
-            print(f"\n❌ Erreur de validation: {e}")
+            print(f"\n Erreur de validation: {e}")
         except Exception as e:
-            print(f"\n❌ Erreur lors de la modification: {e}")
+            print(f"\n Erreur lors de la modification: {e}")
 
     def supprimer_incident(self):
         print("\n" + "-" * 50)
@@ -542,11 +453,11 @@ class Interface:
             id_inc = input("ID de l'incident à supprimer: ")
             incident = Incident.trouver_par_id(self.db, id_inc)
             if not incident:
-                print("\n❌ Incident non trouvé.")
+                print("\n Incident non trouvé.")
                 return
 
             if not self.auth.est_admin() and incident.utilisateur_id != self.auth.get_utilisateur_connecte().id:
-                print("\n❌ Vous ne pouvez supprimer que vos propres incidents.")
+                print("\n Vous ne pouvez supprimer que vos propres incidents.")
                 return
 
             print(f"\n⚠️  Vous allez supprimer: {incident.titre}")
@@ -554,11 +465,11 @@ class Interface:
 
             if confirmation.lower() == 'o':
                 incident.supprimer(self.db)
-                print("\n✅ Incident supprimé avec succès!")
+                print("\n Incident supprimé avec succès!")
             else:
                 print("\nSuppression annulée.")
         except Exception as e:
-            print(f"\n❌ Erreur lors de la suppression: {e}")
+            print(f"\n Erreur lors de la suppression: {e}")
 
     def changer_statut_incident(self):
         print("\n" + "-" * 50)
@@ -569,7 +480,7 @@ class Interface:
             id_inc = input("ID de l'incident: ")
             incident = Incident.trouver_par_id(self.db, id_inc)
             if not incident:
-                print("\n❌ Incident non trouvé.")
+                print("\n Incident non trouvé.")
                 return
 
             print(f"\nIncident: {incident.titre}")
@@ -578,19 +489,15 @@ class Interface:
 
             nouveau_statut = input("Nouveau statut: ").upper()
             incident.changer_statut(self.db, nouveau_statut)
-            print(f"\n✅ Statut changé en {nouveau_statut} avec succès!")
+            print(f"\n Statut changé en {nouveau_statut} avec succès!")
         except ValueError as e:
-            print(f"\n❌ Erreur: {e}")
+            print(f"\n Erreur: {e}")
         except Exception as e:
-            print(f"\n❌ Erreur lors du changement de statut: {e}")
+            print(f"\n Erreur lors du changement de statut: {e}")
 
     # ============ GESTION DES INTERVENTIONS ============
 
     def menu_interventions(self):
-        if not self.auth.est_connecte():
-            print("\n❌ Vous devez être connecté pour accéder à cette fonctionnalité.")
-            return
-
         while True:
             print("\n" + "-" * 50)
             print("GESTION DES INTERVENTIONS")
@@ -621,13 +528,9 @@ class Interface:
             elif choix == "7":
                 break
             else:
-                print("\n❌ Choix invalide.")
+                print("\n Choix invalide.")
 
     def ajouter_intervention(self):
-        if not self.auth.est_connecte():
-            print("\n❌ Vous devez être connecté pour ajouter une intervention.")
-            return
-
         print("\n" + "-" * 50)
         print("AJOUT D'UNE INTERVENTION")
         print("-" * 50)
@@ -637,7 +540,7 @@ class Interface:
 
             incident = Incident.trouver_par_id(self.db, incident_id)
             if not incident:
-                print("\n❌ Incident non trouvé.")
+                print("\n Incident non trouvé.")
                 return
 
             commentaire = input("Commentaire: ")
@@ -651,11 +554,11 @@ class Interface:
             )
 
             intervention.sauvegarder(self.db)
-            print(f"\n✅ Intervention ajoutée avec succès! (ID: {intervention.id})")
+            print(f"\n Intervention ajoutée avec succès! (ID: {intervention.id})")
         except ValueError as e:
-            print(f"\n❌ Erreur de validation: {e}")
+            print(f"\n Erreur de validation: {e}")
         except Exception as e:
-            print(f"\n❌ Erreur lors de l'ajout: {e}")
+            print(f"\n Erreur lors de l'ajout: {e}")
 
     def lister_interventions(self):
         print("\n" + "-" * 50)
@@ -676,7 +579,7 @@ class Interface:
             else:
                 print("\nAucune intervention trouvée.")
         except Exception as e:
-            print(f"\n❌ Erreur lors du listage: {e}")
+            print(f"\n Erreur lors du listage: {e}")
 
     def rechercher_intervention(self):
         print("\n" + "-" * 50)
@@ -696,35 +599,35 @@ class Interface:
                 if intervention:
                     self._afficher_intervention(intervention)
                 else:
-                    print("\n❌ Intervention non trouvée.")
+                    print("\n Intervention non trouvée.")
 
             elif choix == "2":
                 incident_id = input("ID de l'incident: ")
                 interventions = Intervention.trouver_par_incident(self.db, incident_id)
                 if interventions:
-                    print(f"\n✅ {len(interventions)} intervention(s) trouvée(s):")
+                    print(f"\n {len(interventions)} intervention(s) trouvée(s):")
                     for inter in interventions:
                         print(f"   - #{inter.id}: {inter.commentaire[:40]}... ({inter.duree_minutes} min)")
                 else:
-                    print(f"\n❌ Aucune intervention pour cet incident.")
+                    print(f"\n Aucune intervention pour cet incident.")
 
             elif choix == "3":
                 technicien_id = input("ID du technicien: ")
                 interventions = Intervention.trouver_par_technicien(self.db, technicien_id)
                 if interventions:
-                    print(f"\n✅ {len(interventions)} intervention(s) trouvée(s):")
+                    print(f"\n {len(interventions)} intervention(s) trouvée(s):")
                     for inter in interventions:
                         print(f"   - #{inter.id}: {inter.commentaire[:40]}... ({inter.duree_minutes} min)")
                 else:
-                    print(f"\n❌ Aucune intervention pour ce technicien.")
+                    print(f"\n Aucune intervention pour ce technicien.")
 
             else:
-                print("\n❌ Choix invalide.")
+                print("\n Choix invalide.")
         except Exception as e:
-            print(f"\n❌ Erreur lors de la recherche: {e}")
+            print(f"\n Erreur lors de la recherche: {e}")
 
     def _afficher_intervention(self, intervention):
-        print("\n" + "📋 DÉTAILS DE L'INTERVENTION")
+        print("\n" + " DÉTAILS DE L'INTERVENTION")
         print("-" * 40)
         print(f"ID: {intervention.id}")
         print(f"Commentaire: {intervention.commentaire}")
@@ -748,11 +651,11 @@ class Interface:
             id_inter = input("ID de l'intervention à modifier: ")
             intervention = Intervention.trouver_par_id(self.db, id_inter)
             if not intervention:
-                print("\n❌ Intervention non trouvée.")
+                print("\n Intervention non trouvée.")
                 return
 
             if not self.auth.est_admin() and intervention.technicien_id != self.auth.get_utilisateur_connecte().id:
-                print("\n❌ Vous ne pouvez modifier que vos propres interventions.")
+                print("\n Vous ne pouvez modifier que vos propres interventions.")
                 return
 
             print(f"\nModification de l'intervention #{intervention.id}")
@@ -766,11 +669,11 @@ class Interface:
             intervention.duree_minutes = duree_minutes
 
             intervention.sauvegarder(self.db)
-            print("\n✅ Intervention modifiée avec succès!")
+            print("\n Intervention modifiée avec succès!")
         except ValueError as e:
-            print(f"\n❌ Erreur de validation: {e}")
+            print(f"\n Erreur de validation: {e}")
         except Exception as e:
-            print(f"\n❌ Erreur lors de la modification: {e}")
+            print(f"\n Erreur lors de la modification: {e}")
 
     def supprimer_intervention(self):
         print("\n" + "-" * 50)
@@ -781,23 +684,23 @@ class Interface:
             id_inter = input("ID de l'intervention à supprimer: ")
             intervention = Intervention.trouver_par_id(self.db, id_inter)
             if not intervention:
-                print("\n❌ Intervention non trouvée.")
+                print("\n Intervention non trouvée.")
                 return
 
             if not self.auth.est_admin() and intervention.technicien_id != self.auth.get_utilisateur_connecte().id:
-                print("\n❌ Vous ne pouvez supprimer que vos propres interventions.")
+                print("\n Vous ne pouvez supprimer que vos propres interventions.")
                 return
 
-            print(f"\n⚠️  Vous allez supprimer l'intervention #{intervention.id}")
+            print(f"\n⚠  Vous allez supprimer l'intervention #{intervention.id}")
             confirmation = input("Confirmer la suppression? (o/n): ")
 
             if confirmation.lower() == 'o':
                 intervention.supprimer(self.db)
-                print("\n✅ Intervention supprimée avec succès!")
+                print("\n Intervention supprimée avec succès!")
             else:
                 print("\nSuppression annulée.")
         except Exception as e:
-            print(f"\n❌ Erreur lors de la suppression: {e}")
+            print(f"\n Erreur lors de la suppression: {e}")
 
     def voir_interventions_incident(self):
         print("\n" + "-" * 50)
@@ -809,12 +712,12 @@ class Interface:
         try:
             incident = Incident.trouver_par_id(self.db, incident_id)
             if not incident:
-                print("\n❌ Incident non trouvé.")
+                print("\n Incident non trouvé.")
                 return
 
             interventions = incident.get_interventions(self.db)
             if interventions:
-                print(f"\n📝 Interventions pour l'incident #{incident_id}: {incident.titre}")
+                print(f"\n Interventions pour l'incident #{incident_id}: {incident.titre}")
                 print("-" * 50)
                 for inter in interventions:
                     technicien = inter.get_technicien(self.db)
@@ -823,13 +726,11 @@ class Interface:
             else:
                 print(f"\nAucune intervention pour l'incident #{incident_id}")
         except Exception as e:
-            print(f"\n❌ Erreur: {e}")
+            print(f"\n Erreur: {e}")
+
+    # ============ TICKETS / STATISTIQUES ============
 
     def voir_mes_tickets(self):
-        if not self.auth.est_connecte():
-            print("\n❌ Vous devez être connecté pour voir vos tickets.")
-            return
-
         u = self.auth.get_utilisateur_connecte()
         print(f"\n" + "-" * 50)
         print(f"MES TICKETS - {u.prenom} {u.nom}")
@@ -838,7 +739,7 @@ class Interface:
         try:
             incidents = Incident.trouver_par_utilisateur(self.db, u.id)
             if incidents:
-                print(f"\n📊 {len(incidents)} incident(s) trouvé(s):")
+                print(f"\n {len(incidents)} incident(s) trouvé(s):")
                 print("\nID | Titre | Priorité | Statut | Date")
                 print("-" * 60)
                 for inc in incidents:
@@ -846,13 +747,13 @@ class Interface:
 
                     interventions = inc.get_interventions(self.db)
                     if interventions:
-                        print(f"    📝 {len(interventions)} intervention(s):")
+                        print(f"     {len(interventions)} intervention(s):")
                         for inter in interventions:
                             print(f"       - #{inter.id}: {inter.commentaire[:30]}... ({inter.duree_minutes} min)")
             else:
                 print("\nVous n'avez aucun ticket.")
         except Exception as e:
-            print(f"\n❌ Erreur lors de l'affichage: {e}")
+            print(f"\n Erreur lors de l'affichage: {e}")
 
     def afficher_statistiques(self):
         print("\n" + "-" * 50)
@@ -873,20 +774,19 @@ class Interface:
 
             temps_total = sum(inter.duree_minutes for inter in interventions)
 
-            print(f"\n📊 Nombre total d'incidents: {nb_incidents}")
-            print(f"📊 Nombre total d'interventions: {nb_interventions}")
-            print(f"📊 Nombre total d'utilisateurs: {nb_utilisateurs}")
-            print(f"📊 Temps total passé: {temps_total} minutes")
+            print(f"\n Nombre total d'incidents: {nb_incidents}")
+            print(f" Nombre total d'interventions: {nb_interventions}")
+            print(f" Nombre total d'utilisateurs: {nb_utilisateurs}")
+            print(f" Temps total passé: {temps_total} minutes")
 
-            print("\n📊 Répartition des incidents par statut:")
+            print("\n Répartition des incidents par statut:")
             for statut, nb in stats_statuts.items():
                 print(f"   - {statut}: {nb}")
 
-            if self.auth.est_connecte():
-                temps_utilisateur = Intervention.duree_totale_par_technicien(
-                    self.db, self.auth.get_utilisateur_connecte().id
-                )
-                print(f"\n⏱️  Votre temps total d'intervention: {temps_utilisateur} minutes")
+            temps_utilisateur = Intervention.duree_totale_par_technicien(
+                self.db, self.auth.get_utilisateur_connecte().id
+            )
+            print(f"\n  Votre temps total d'intervention: {temps_utilisateur} minutes")
 
         except Exception as e:
-            print(f"\n❌ Erreur lors du calcul des statistiques: {e}")
+            print(f"\n Erreur lors du calcul des statistiques: {e}")

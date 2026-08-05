@@ -151,3 +151,5 @@ class Incident:
             "SELECT statut, COUNT(*) FROM incident GROUP BY statut"
         )
         return {statut: nb for statut, nb in lignes}
+
+

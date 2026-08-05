@@ -30,23 +30,23 @@ class Auth:
             utilisateur = Utilisateur.authentifier(self.db, login, mot_de_passe)
             if utilisateur:
                 self.utilisateur_connecte = utilisateur
-                print(f"\n✅ Bonjour {utilisateur.prenom} {utilisateur.nom}!")
+                print(f"\n Bonjour {utilisateur.prenom} {utilisateur.nom}!")
                 print(f"   Rôle: {utilisateur.role}")
                 return True
             else:
-                print("\n❌ Login ou mot de passe incorrect.")
+                print("\n Login ou mot de passe incorrect.")
                 return False
         except Exception as e:
-            print(f"\n❌ Erreur lors de l'authentification: {e}")
+            print(f"\n Erreur lors de l'authentification: {e}")
             return False
 
     def logout(self):
         """Déconnecte l'utilisateur"""
         if self.utilisateur_connecte:
-            print(f"\n👋 Au revoir {self.utilisateur_connecte.prenom} {self.utilisateur_connecte.nom}!")
+            print(f"\n Au revoir {self.utilisateur_connecte.prenom} {self.utilisateur_connecte.nom}!")
             self.utilisateur_connecte = None
         else:
-            print("\n❌ Vous n'êtes pas connecté.")
+            print("\n Vous n'êtes pas connecté.")
 
     def est_connecte(self):
         return self.utilisateur_connecte is not None
@@ -78,11 +78,11 @@ class Auth:
             print(f"Service: {u.service or '-'}")
             print(f"Date création: {u.date_creation}")
         else:
-            print("\n❌ Aucun utilisateur connecté.")
+            print("\n Aucun utilisateur connecté.")
 
     def changer_mot_de_passe(self):
         if not self.est_connecte():
-            print("\n❌ Vous devez être connecté pour changer votre mot de passe.")
+            print("\n Vous devez être connecté pour changer votre mot de passe.")
             return
 
         print("\n" + "-" * 50)
@@ -94,7 +94,7 @@ class Auth:
         confirmation = input("Confirmer le nouveau mot de passe: ")
 
         if nouveau_mdp != confirmation:
-            print("\n❌ Les mots de passe ne correspondent pas.")
+            print("\n Les mots de passe ne correspondent pas.")
             return
 
         utilisateur = Utilisateur.authentifier(
@@ -104,12 +104,12 @@ class Auth:
         )
 
         if not utilisateur:
-            print("\n❌ Ancien mot de passe incorrect.")
+            print("\n Ancien mot de passe incorrect.")
             return
 
         try:
             self.utilisateur_connecte.password = nouveau_mdp
             self.utilisateur_connecte.sauvegarder(self.db)
-            print("\n✅ Mot de passe changé avec succès!")
+            print("\n Mot de passe changé avec succès!")
         except Exception as e:
-            print(f"\n❌ Erreur lors du changement de mot de passe: {e}")
+            print(f"\n Erreur lors du changement de mot de passe: {e}")
