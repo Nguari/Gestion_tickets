@@ -141,23 +141,3 @@ def main():
 
     app = Interface()
 
-    try:
-        if not authentifier(app):
-            print("\nFin du programme.")
-            return
-
-        while app.auth.est_connecte() or authentifier(app):
-            rediriger_vers_menu(app)
-            if not app.auth.est_connecte():
-                continuer = input("\nSe reconnecter ? (o/n) : ").strip().lower()
-                if continuer != 'o':
-                    break
-
-        print("\nÀ bientôt !")
-
-    finally:
-        app.db.fermer()
-
-
-if __name__ == "__main__":
-    main()
